@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrepMate - Mobile Prototype</title>
+  
+  <!-- Google Fonts: DM Serif Display & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            forest: '#2D6A1E',
+            fern: '#5D9C26',
+            mist: '#E5F0DE',
+            clay: '#B36D15',
+            turmeric: '#EAA023',
+            linen: '#FAEDE0',
+            safe: '#5D9C26',
+            soon: '#B36D15',
+            today: '#9E3E23',
+            cream: '#F5F0E8',
+            stone: '#D7D1C9',
+            slate: '#3E4348',
+            soil: '#211B15',
+          },
+          fontFamily: {
+            serif: ['"DM Serif Display"', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Premium scrollbar behavior inside mobile screen */
+    .mobile-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .mobile-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .mobile-scroll::-webkit-scrollbar-thumb {
+      background: #D7D1C9;
+      border-radius: 9999px;
+    }
+    
+    /* Fade-in animation for state transitions */
+    .fade-enter {
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-soil text-soil font-sans min-h-screen flex items-center justify-center p-4">
+
+  <!-- Premium Mobile Shell Mockup with UI Screens centered on screen -->
+  <div class="flex-none flex justify-center items-center">
+    <!-- Phone Container with realistic borders, shadow, and speaker bar -->
+    <div class="relative w-[395px] h-[812px] bg-slate rounded-[50px] p-3 shadow-2xl border-4 border-slate/70 flex flex-col justify-between overflow-hidden">
+      <!-- Speaker & Sensor notch -->
+      <div class="absolute top-4 left-1/2 -translate-x-1/2 w-32 h-5 bg-slate rounded-full z-50 flex items-center justify-center">
+        <span class="w-12 h-1 bg-soil/70 rounded-full"></span>
+        <span class="w-2 h-2 bg-soil/70 rounded-full ml-2"></span>
+      </div>
+
+      <!-- App Screen Content Root (Cream Base) -->
+      <div id="screen-root" class="relative w-full h-full bg-cream rounded-[40px] overflow-hidden flex flex-col select-none text-soil border border-cream/50 shadow-inner">
+        
+        <!-- ==================== ONBOARDING SCREEN ==================== -->
+        <div id="screen-onboarding" class="hidden h-full flex flex-col justify-between p-6 fade-enter">
+          <div class="pt-10 flex flex-col items-center text-center">
+            <div class="w-16 h-16 bg-mist rounded-[24px] flex items-center justify-center text-forest mb-6 shadow-sm">
+              <i data-lucide="leaf" class="w-8 h-8"></i>
+            </div>
+            <h2 class="font-serif text-4xl text-forest tracking-tight mb-3">Prep Smart.</h2>
+            <h2 class="font-serif text-4xl text-forest tracking-tight mb-4">Waste Less.</h2>
+            <p class="text-sm text-slate/80 leading-relaxed max-w-[280px]">
+              The intelligent, offline-first pantry guide tailored for local Philippine households.
+            </p>
+          </div>
+
+          <!-- Quick interactive config -->
+          <div class="bg-linen p-4 rounded-3xl space-y-3 border border-stone/30">
+            <p class="text-xs font-semibold text-slate uppercase tracking-wider text-center">Customize Your Household</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="selectOnboardingType('student')" id="btn-user-student" class="p-2.5 rounded-2xl bg-cream border border-forest text-xs font-medium text-center hover:bg-stone/20 transition-all">
+                Student Pod
+              </button>
+              <button onclick="selectOnboardingType('house')" id="btn-user-house" class="p-2.5 rounded-2xl bg-cream border border-transparent text-xs font-medium text-center hover:bg-stone/20 transition-all">
+                PH Family
+              </button>
+            </div>
+            <div class="text-[11px] text-slate/60 text-center italic" id="onboarding-desc">
+              Setting custom default buffers for wet-market open storage.
+            </div>
+          </div>
+
+          <div class="pb-4">
+            <button onclick="completeOnboarding()" class="w-full bg-forest text-cream font-serif py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-forest/90 shadow-md transition-all">
+              Enter My Pantry <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+
+
+        <!-- ==================== MAIN PANTRY VIEW ==================== -->
+        <div id="screen-pantry" class="hidden h-full flex flex-col justify-between fade-enter">
+          
+          <!-- Sticky Header -->
+          <div class="p-5 pb-3 pt-8 bg-cream/90 backdrop-blur-md border-b border-stone/20 flex flex-col gap-3 z-10">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <h1 class="font-serif text-2xl text-forest font-bold">My Pantry</h1>
+                <span class="bg-mist text-forest text-[11px] font-semibold px-2 py-0.5 rounded-full" id="pantry-total-badge">4 items</span>
+              </div>
+              <button onclick="changeScreen('insights')" class="text-slate hover:text-forest transition-colors p-1 relative">
+                <i data-lucide="bar-chart-2" class="w-6 h-6"></i>
+                <span class="absolute top-0 right-0 w-2.5 h-2.5 bg-today rounded-full border border-cream animate-pulse"></span>
+              </button>
+            </div>
+
+            <!-- Urgent Warnings Ribbon (Matching Design Sheet Accent/Urgency) -->
+            <div onclick="filterUrgency('Today')" class="cursor-pointer bg-red-50 hover:bg-red-100 transition-colors p-3 rounded-2xl flex items-center justify-between border border-red-200/50">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-today animate-ping"></span>
+                <span class="text-xs font-semibold text-today uppercase tracking-wider">Use today</span>
+              </div>
+              <span class="text-xs font-bold text-today" id="badge-count-today">1 item needs rescue</span>
+            </div>
+
+            <!-- Dynamic Urgent Matrix Bar -->
+            <div class="flex h-1.5 w-full bg-stone/40 rounded-full overflow-hidden">
+              <div id="bar-today" class="bg-today h-full transition-all duration-300" style="width: 25%"></div>
+              <div id="bar-soon" class="bg-clay h-full transition-all duration-300" style="width: 25%"></div>
+              <div id="bar-safe" class="bg-safe h-full transition-all duration-300" style="width: 50%"></div>
+            </div>
+
+            <!-- Search and Filter Pills -->
+            <div class="flex gap-2">
+              <div class="relative flex-1">
+                <i data-lucide="search" class="w-4 h-4 text-slate/50 absolute left-3 top-2.5"></i>
+                <input type="text" id="search-input" oninput="renderPantry()" placeholder="Search ingredients..." class="w-full text-xs bg-stone/20 border border-stone/20 rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:border-forest text-soil">
+              </div>
+              <select id="zone-filter" onchange="renderPantry()" class="text-xs bg-stone/20 border border-stone/20 rounded-xl px-2 py-2 focus:outline-none focus:border-forest text-soil font-semibold">
+                <option value="All">All Storage</option>
+                <option value="Ref">Refrigerator</option>
+                <option value="Freezer">Freezer</option>
+                <option value="Pantry">Dry Pantry</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Scrollable Pantry List -->
+          <div class="flex-1 overflow-y-auto px-5 py-2 space-y-3 mobile-scroll" id="pantry-list">
+            <!-- Dynamic Item Cards injected here -->
+          </div>
+
+          <!-- Bottom Action Deck -->
+          <div class="p-5 bg-cream/90 border-t border-stone/20 flex flex-col gap-3">
+            <button onclick="generatePrepPlan()" class="w-full bg-forest text-cream font-serif py-3.5 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-forest/90 transition-all shadow-md">
+              Generate prep plan <i data-lucide="sparkles" class="w-4 h-4 text-turmeric"></i>
+            </button>
+            
+            <div class="flex justify-between items-center text-xs text-slate px-1">
+              <span class="flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-safe"></span> Safe
+              </span>
+              <span class="flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-soon"></span> Soon
+              </span>
+              <span class="flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-today"></span> Today
+              </span>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- ==================== BATCHES VIEW ==================== -->
+        <div id="screen-batches" class="hidden h-full flex flex-col justify-between fade-enter">
+          
+          <!-- Sticky Header -->
+          <div class="p-5 pb-3 pt-8 bg-cream/90 backdrop-blur-md border-b border-stone/20 flex flex-col gap-3 z-10">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <h1 class="font-serif text-2xl text-forest font-bold">Prepped Batches</h1>
+                <span class="bg-mist text-forest text-[11px] font-semibold px-2 py-0.5 rounded-full" id="batches-total-badge">0 batches</span>
+              </div>
+            </div>
+            <p class="text-xs text-slate/80">Track your prepped meals and decrement portions as you eat.</p>
+          </div>
+
+          <!-- Scrollable Batches List -->
+          <div class="flex-1 overflow-y-auto px-5 py-4 space-y-3 mobile-scroll" id="batches-list">
+            <!-- Dynamic Batch Cards injected here -->
+          </div>
+
+        </div>
+
+
+        <!-- ==================== LOGGING SCREEN (Multi-modal) ==================== -->
+        <div id="screen-add_item" class="hidden h-full flex flex-col justify-between fade-enter">
+          
+          <!-- Header -->
+          <div class="p-5 pb-3 pt-8 bg-cream/90 border-b border-stone/20 flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <button onclick="changeScreen('pantry')" class="text-slate hover:text-forest p-1">
+                <i data-lucide="arrow-left" class="w-6 h-6"></i>
+              </button>
+              <h1 class="font-serif text-xl text-forest">Add Food Item</h1>
+              <div class="w-8"></div> <!-- Spacer -->
+            </div>
+
+            <!-- Entry Type Tabs -->
+            <div class="flex bg-stone/20 p-1 rounded-xl">
+              <button onclick="openSubTab('manual')" id="tab-btn-manual" class="flex-1 text-[11px] font-bold py-1.5 rounded-lg text-center transition-all bg-cream shadow-sm text-forest">
+                Manual / Quick
+              </button>
+              <button onclick="openSubTab('ocr')" id="tab-btn-ocr" class="flex-1 text-[11px] font-bold py-1.5 rounded-lg text-center transition-all text-slate/70">
+                Receipt (AI)
+              </button>
+              <button onclick="openSubTab('barcode')" id="tab-btn-barcode" class="flex-1 text-[11px] font-bold py-1.5 rounded-lg text-center transition-all text-slate/70">
+                Barcode
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Tabs Content viewport -->
+          <div class="flex-1 overflow-y-auto px-5 py-4 mobile-scroll">
+            
+            <!-- SUBTAB: MANUAL -->
+            <div id="subtab-manual" class="space-y-4">
+              <!-- Preset Ingredients for Quick Taps -->
+              <div>
+                <p class="text-[11px] font-semibold text-slate uppercase tracking-wider mb-2">Popular Wet Market presets</p>
+                <div class="grid grid-cols-2 gap-2">
+                  <div onclick="addPresetItem('Kangkong', 'Leafy Greens', 'Ref', 2)" class="cursor-pointer bg-linen/50 hover:bg-linen p-2.5 rounded-2xl border border-stone/20 flex items-center justify-between transition-colors">
+                    <span class="text-xs font-semibold">🥦 Kangkong</span>
+                    <span class="text-[10px] text-today font-bold">2 days</span>
+                  </div>
+                  <div onclick="addPresetItem('Chicken breast', 'Raw Poultry', 'Freezer', 14)" class="cursor-pointer bg-linen/50 hover:bg-linen p-2.5 rounded-2xl border border-stone/20 flex items-center justify-between transition-colors">
+                    <span class="text-xs font-semibold">🍗 Chicken</span>
+                    <span class="text-[10px] text-safe font-bold">14 days</span>
+                  </div>
+                  <div onclick="addPresetItem('Bangus (Milkfish)', 'Fresh Fish', 'Ref', 3)" class="cursor-pointer bg-linen/50 hover:bg-linen p-2.5 rounded-2xl border border-stone/20 flex items-center justify-between transition-colors">
+                    <span class="text-xs font-semibold">🐟 Bangus</span>
+                    <span class="text-[10px] text-soon font-bold">3 days</span>
+                  </div>
+                  <div onclick="addPresetItem('Sitaw (Yardlong)', 'Vegetables', 'Ref', 6)" class="cursor-pointer bg-linen/50 hover:bg-linen p-2.5 rounded-2xl border border-stone/20 flex items-center justify-between transition-colors">
+                    <span class="text-xs font-semibold">🌱 Sitaw</span>
+                    <span class="text-[10px] text-safe font-bold">6 days</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Manual Entry Form -->
+              <div class="bg-linen/40 p-4 rounded-3xl border border-stone/30 space-y-3">
+                <p class="text-[11px] font-semibold text-slate uppercase tracking-wider">Custom Entry</p>
+                
+                <div>
+                  <label class="block text-[10px] font-bold text-slate mb-1">Item Name</label>
+                  <input type="text" id="manual-name" placeholder="e.g. Pork Liempo" class="w-full text-xs p-2.5 bg-cream border border-stone/30 rounded-xl focus:outline-none focus:border-forest text-soil">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate mb-1">Storage Zone</label>
+                    <select id="manual-zone" class="w-full text-xs p-2.5 bg-cream border border-stone/30 rounded-xl focus:outline-none focus:border-forest text-soil">
+                      <option value="Ref">Refrigerator</option>
+                      <option value="Freezer">Freezer</option>
+                      <option value="Pantry">Dry Pantry</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate mb-1">Quantity</label>
+                    <input type="text" id="manual-qty" placeholder="e.g. 500g, 1 pack" class="w-full text-xs p-2.5 bg-cream border border-stone/30 rounded-xl focus:outline-none focus:border-forest text-soil">
+                  </div>
+                </div>
+
+                <div class="pt-2">
+                  <button onclick="saveManualEntry()" class="w-full bg-forest text-cream text-xs font-serif py-3 rounded-xl font-bold hover:bg-forest/90 transition-all flex items-center justify-center gap-1">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Add to Pantry
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- SUBTAB: RECEIPT OCR -->
+            <div id="subtab-ocr" class="hidden space-y-4">
+              <div class="p-3 bg-linen rounded-2xl border border-stone/20 text-xs">
+                <span class="font-semibold text-forest flex items-center gap-1.5 mb-1">
+                  <i data-lucide="brain" class="w-4 h-4"></i> Deterministic Normalizer
+                </span>
+                Standardizes raw cash-register outputs using string distance matches. Select a template or paste custom raw text below to test it.
+              </div>
+
+              <!-- Quick OCR Presets -->
+              <div class="flex gap-2">
+                <button onclick="fillReceiptPreset('puregold')" class="flex-1 bg-stone/30 hover:bg-stone/50 text-[10px] font-bold py-1.5 px-2 rounded-xl text-center border border-stone/20 transition-all">
+                  Puregold Run
+                </button>
+                <button onclick="fillReceiptPreset('palengke')" class="flex-1 bg-stone/30 hover:bg-stone/50 text-[10px] font-bold py-1.5 px-2 rounded-xl text-center border border-stone/20 transition-all">
+                  Wet-Market Note
+                </button>
+              </div>
+
+              <div>
+                <label class="block text-[10px] font-bold text-slate mb-1">Raw Receipt Feed</label>
+                <textarea id="ocr-textarea" rows="5" class="w-full font-mono text-[11px] p-2 bg-soil text-emerald-300 rounded-xl focus:outline-none focus:border-forest resize-none"></textarea>
+              </div>
+
+              <button onclick="simulateReceiptStandardization()" class="w-full bg-forest text-cream text-xs py-3 rounded-xl font-semibold flex items-center justify-center gap-1.5 hover:bg-forest/90 transition-colors">
+                <i data-lucide="scan-line" class="w-4 h-4 text-turmeric"></i> Parse & Standardize
+              </button>
+
+              <!-- Parsing Interactive Visual State -->
+              <div id="ocr-results" class="hidden p-3 bg-linen rounded-2xl border border-stone/30 space-y-2">
+                <div class="flex justify-between items-center border-b border-stone/20 pb-1.5">
+                  <span class="text-[10px] font-bold text-slate uppercase tracking-wider">AI Normalized Matches</span>
+                  <span class="text-[9px] bg-forest text-cream font-mono px-1 rounded">Offline SQLite Map</span>
+                </div>
+                <div class="space-y-1.5 max-h-44 overflow-y-auto" id="ocr-items-list">
+                  <!-- Match lists added dynamic -->
+                </div>
+                <button onclick="addAllOcrParsedItems()" class="w-full mt-2 bg-fern text-cream text-xs py-2 rounded-xl font-bold hover:bg-fern/95 transition-all">
+                  Commit items to SQLite
+                </button>
+              </div>
+            </div>
+
+            <!-- SUBTAB: BARCODE -->
+            <div id="subtab-barcode" class="hidden space-y-4">
+              <div class="aspect-video bg-soil rounded-3xl border-2 border-stone/40 relative overflow-hidden flex flex-col justify-center items-center">
+                <!-- Red scanning laser line -->
+                <div class="absolute w-full h-0.5 bg-today top-1/2 left-0 shadow-[0_0_8px_#9E3E23] animate-bounce"></div>
+                <i data-lucide="camera" class="w-10 h-10 text-stone/40 mb-2"></i>
+                <span class="text-xs text-stone/60">Simulating On-Device Camera View</span>
+              </div>
+              <p class="text-xs text-center text-slate/70">Point your device camera at a packaged UPC code to scan instant expiry data.</p>
+              
+              <!-- Quick barcode triggers -->
+              <div class="space-y-2 pt-2">
+                <p class="text-[11px] font-semibold text-slate uppercase tracking-wider">Simulate Scan Match</p>
+                <div onclick="triggerMockBarcode('Lucky Me Noodles', 'Processed', 120)" class="cursor-pointer hover:bg-linen/60 p-3 bg-linen/30 border border-stone/20 rounded-2xl flex items-center justify-between transition-all">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="barcode" class="w-5 h-5 text-slate"></i>
+                    <div>
+                      <p class="text-xs font-bold">Lucky Me Instant Noodles</p>
+                      <p class="text-[10px] text-slate/60">UPC: 4800016024921</p>
+                    </div>
+                  </div>
+                  <span class="text-xs text-safe font-bold">Safe (120d)</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="p-5 bg-cream/90 border-t border-stone/20">
+            <button onclick="changeScreen('pantry')" class="w-full bg-slate text-cream text-xs py-3 rounded-xl font-bold hover:bg-slate/90 transition-all">
+              Cancel
+            </button>
+          </div>
+        </div>
+
+
+        <!-- ==================== MEAL PREP PLANNER SCREEN ==================== -->
+        <div id="screen-prep_planner" class="hidden h-full flex flex-col justify-between fade-enter">
+          
+          <!-- Header -->
+          <div class="p-5 pb-3 pt-8 bg-cream/90 border-b border-stone/20 flex justify-between items-center">
+            <button onclick="changeScreen('pantry')" class="text-slate hover:text-forest p-1">
+              <i data-lucide="arrow-left" class="w-6 h-6"></i>
+            </button>
+            <h1 class="font-serif text-xl text-forest">Smart Prep Plan</h1>
+            <div class="w-8"></div>
+          </div>
+
+          <!-- Planner Main Area -->
+          <div class="flex-1 overflow-y-auto px-5 py-4 space-y-4 mobile-scroll">
+            
+            <!-- Quick stats alert -->
+            <div class="bg-mist p-4 rounded-3xl border border-stone/20 flex items-center justify-between">
+              <div>
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-forest">Expiry Rescue Mission</p>
+                <h3 class="text-lg font-bold text-forest leading-tight" id="plan-rescued-text">3 items saved from waste</h3>
+              </div>
+              <div class="bg-forest p-2 rounded-xl text-cream">
+                <i data-lucide="award" class="w-5 h-5"></i>
+              </div>
+            </div>
+
+            <!-- Prep Session Flow -->
+            <div class="space-y-3">
+              <p class="text-xs font-semibold text-slate uppercase tracking-wider">Estimated Session: 35 Minutes</p>
+              
+              <!-- Grouping step 1 -->
+              <div class="bg-linen p-4 rounded-3xl border border-stone/30 space-y-3">
+                <div class="flex justify-between items-start">
+                  <span class="bg-today text-cream text-[10px] font-bold px-2 py-0.5 rounded-full">Batch 1: Stew & Sauté</span>
+                  <span class="text-xs text-slate/70">Rescuing 2 items</span>
+                </div>
+                <h4 class="font-serif text-md text-forest font-semibold">Stir-Fried Kangkong with Garlic & Chicken strips</h4>
+                <p class="text-xs text-slate leading-relaxed">
+                  Cook your expiring <span class="font-bold underline">Kangkong</span> and <span class="font-bold underline text-clay">Chicken breast</span> together immediately. The high sodium base preserves shelf-life of cooked foods up to 4 additional days.
+                </p>
+                <div class="p-2 bg-cream/60 rounded-xl text-[10px] text-slate/80 space-y-1">
+                  <p class="font-semibold text-forest">Prep Instructions:</p>
+                  <p>1. Shred chicken & mince Garlic.</p>
+                  <p>2. Blanch Kangkong stems first, then toss leaves.</p>
+                </div>
+              </div>
+
+              <!-- Storage & Shelf layout -->
+              <div class="bg-linen/40 p-4 rounded-3xl border border-stone/30 space-y-2">
+                <p class="text-[10px] font-bold text-slate uppercase tracking-wider flex items-center gap-1">
+                  <i data-lucide="snowflake" class="w-3.5 h-3.5 text-forest"></i> Smart Container Storage Map
+                </p>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div class="bg-cream p-2.5 rounded-2xl border border-stone/20">
+                    <p class="font-bold text-forest">Meal 1-2</p>
+                    <p class="text-[10px] text-slate/70">Keep Refrigerated</p>
+                    <p class="text-[10px] text-today font-semibold">Eat by Thursday</p>
+                  </div>
+                  <div class="bg-cream p-2.5 rounded-2xl border border-stone/20">
+                    <p class="font-bold text-forest">Meal 3-4</p>
+                    <p class="text-[10px] text-slate/70">Freeze Airtight</p>
+                    <p class="text-[10px] text-safe font-semibold">Safe for 14d</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recipe card detail suggestion link -->
+            <button onclick="changeScreen('shopping_list')" class="w-full bg-forest text-cream text-xs py-3.5 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-forest/90 transition-colors">
+              Review Missing Shopping Gap List <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Commit Prepped State Action -->
+          <div class="p-5 bg-cream/90 border-t border-stone/20">
+            <button onclick="commitPreppedMeals()" class="w-full bg-forest text-cream text-xs py-3.5 rounded-2xl font-serif font-bold hover:bg-forest/90 transition-all flex items-center justify-center gap-1.5 shadow-md">
+              <i data-lucide="check" class="w-4 h-4 text-turmeric"></i> Mark session as Prepped
+            </button>
+            <p class="text-[10px] text-center text-slate/60 mt-2">This automatically consumes ingredients used in your database.</p>
+          </div>
+        </div>
+
+
+        <!-- ==================== INSIGHTS / WASTE TRACKER SCREEN ==================== -->
+        <div id="screen-insights" class="hidden h-full flex flex-col justify-between fade-enter">
+          
+          <!-- Header -->
+          <div class="p-5 pb-3 pt-8 bg-cream/90 border-b border-stone/20 flex justify-between items-center">
+            <button onclick="changeScreen('pantry')" class="text-slate hover:text-forest p-1">
+              <i data-lucide="arrow-left" class="w-6 h-6"></i>
+            </button>
+            <h1 class="font-serif text-xl text-forest">Waste Tracker</h1>
+            <div class="w-8"></div>
+          </div>
+
+          <!-- Main content area -->
+          <div class="flex-1 overflow-y-auto px-5 py-4 space-y-4 mobile-scroll">
+            
+            <!-- Gamified Score and Money Saving -->
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-linen p-4 rounded-3xl border border-stone/30 flex flex-col justify-between">
+                <span class="text-[10px] font-bold text-slate uppercase tracking-wider">Waste Score</span>
+                <div>
+                  <h3 class="text-3xl font-serif text-forest" id="insights-score">94%</h3>
+                  <span class="text-[10px] bg-forest/20 text-forest font-bold px-1.5 py-0.5 rounded">Excellent</span>
+                </div>
+              </div>
+              <div class="bg-linen p-4 rounded-3xl border border-stone/30 flex flex-col justify-between">
+                <span class="text-[10px] font-bold text-slate uppercase tracking-wider">Est. Loss Saved</span>
+                <div>
+                  <h3 class="text-2xl font-bold text-forest font-mono">₱450.00</h3>
+                  <span class="text-[10px] text-slate/60">Saved this month</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Historical Waste Category Breakdown using CSS bars -->
+            <div class="bg-linen/40 p-4 rounded-3xl border border-stone/30 space-y-3">
+              <p class="text-[10px] font-bold text-slate uppercase tracking-wider flex items-center gap-1">
+                <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-forest"></i> Discarded food categories
+              </p>
+              
+              <div class="space-y-2">
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="font-medium text-slate">Leafy Greens</span>
+                    <span class="text-today font-bold" id="discard-percentage-greens">65% of waste</span>
+                  </div>
+                  <div class="w-full bg-stone/30 h-2 rounded-full overflow-hidden">
+                    <div class="bg-today h-full rounded-full" style="width: 65%"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="font-medium text-slate">Vegetables</span>
+                    <span class="text-clay font-bold" id="discard-percentage-veggies">25% of waste</span>
+                  </div>
+                  <div class="w-full bg-stone/30 h-2 rounded-full overflow-hidden">
+                    <div class="bg-clay h-full rounded-full" style="width: 25%"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="font-medium text-slate">Proteins</span>
+                    <span class="text-safe font-bold" id="discard-percentage-proteins">10% of waste</span>
+                  </div>
+                  <div class="w-full bg-stone/30 h-2 rounded-full overflow-hidden">
+                    <div class="bg-safe h-full rounded-full" style="width: 10%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Behavioral Suggestion Card -->
+            <div class="bg-linen p-4 rounded-3xl border border-stone/30 space-y-2">
+              <p class="text-[10px] font-bold text-forest uppercase tracking-wider flex items-center gap-1">
+                <i data-lucide="lightbulb" class="w-4 h-4 text-turmeric"></i> Smart advice for you
+              </p>
+              <p class="text-xs text-slate leading-relaxed">
+                "You consistently throw away <span class="font-bold text-today">Kangkong</span> after 2 days. Consider buying the half-bundle from Aling Nena's wet-market instead of SM supermarkets to minimize financial loss."
+              </p>
+            </div>
+
+            <!-- Recent logs checklist -->
+            <div class="space-y-2">
+              <p class="text-[11px] font-semibold text-slate uppercase tracking-wider">Discard & consumption history</p>
+              <div class="space-y-1.5" id="waste-history-logs">
+                <!-- Log feed injected dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <div class="p-5 bg-cream/90 border-t border-stone/20">
+            <button onclick="changeScreen('pantry')" class="w-full bg-forest text-cream text-xs py-3 rounded-xl font-bold hover:bg-forest/90 transition-all">
+              Back to Pantry
+            </button>
+          </div>
+        </div>
+
+
+        <!-- ==================== SMART SHOPPING GAP LIST ==================== -->
+        <div id="screen-shopping_list" class="hidden h-full flex flex-col justify-between fade-enter">
+          
+          <!-- Header -->
+          <div class="p-5 pb-3 pt-8 bg-cream/90 border-b border-stone/20 flex justify-between items-center">
+            <button onclick="changeScreen('prep_planner')" class="text-slate hover:text-forest p-1">
+              <i data-lucide="arrow-left" class="w-6 h-6"></i>
+            </button>
+            <h1 class="font-serif text-xl text-forest">Shopping Gap List</h1>
+            <div class="w-8"></div>
+          </div>
+
+          <!-- Shopping items content -->
+          <div class="flex-1 overflow-y-auto px-5 py-4 space-y-4 mobile-scroll">
+            
+            <div class="p-3 bg-linen rounded-2xl border border-stone/20 text-xs text-slate/80">
+              <span class="font-semibold text-forest flex items-center gap-1.5 mb-1">
+                <i data-lucide="info" class="w-4 h-4"></i> Recipe Gap Analysis
+              </span>
+              Calculated dynamically by comparing recipe inputs with items currently active in your pantry.
+            </div>
+
+            <!-- Category Section: Wet Market -->
+            <div class="space-y-2">
+              <div class="flex justify-between items-center bg-linen p-2 rounded-xl border border-stone/20">
+                <span class="text-xs font-bold text-forest">🐟 Local Wet Market (Palengke)</span>
+                <span class="text-[10px] bg-forest/20 text-forest px-1.5 rounded">Fresh items</span>
+              </div>
+              <div class="space-y-1.5" id="market-shopping-items">
+                <!-- Injected dynamically -->
+              </div>
+            </div>
+
+            <!-- Category Section: Supermarket -->
+            <div class="space-y-2">
+              <div class="flex justify-between items-center bg-linen p-2 rounded-xl border border-stone/20">
+                <span class="text-xs font-bold text-forest">🏪 Supermarket Staples</span>
+                <span class="text-[10px] bg-stone text-cream px-1.5 rounded font-mono">UPC barcodes</span>
+              </div>
+              <div class="space-y-1.5" id="supermarket-shopping-items">
+                <!-- Injected dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Buy Check Sync Deck -->
+          <div class="p-5 bg-cream/90 border-t border-stone/20">
+            <button onclick="addAllCheckedShoppingItems()" class="w-full bg-forest text-cream text-xs py-3.5 rounded-2xl font-bold hover:bg-forest/90 transition-all flex items-center justify-center gap-1.5 shadow-md">
+              <i data-lucide="shopping-bag" class="w-4 h-4 text-turmeric"></i> Add bought items to Pantry
+            </button>
+          </div>
+        </div>
+
+
+        <!-- Floating Bottom Quick-Action Nav Bar (Global except Onboarding) -->
+        <div id="global-nav" class="hidden bg-cream border-t border-stone/20 py-2.5 px-4 flex justify-around items-center text-xs">
+          <button onclick="changeScreen('pantry')" id="nav-btn-pantry" class="flex flex-col items-center gap-0.5 text-forest font-semibold transition-colors">
+            <i data-lucide="utensils" class="w-5 h-5"></i>
+            <span>Pantry</span>
+          </button>
+          
+          <button onclick="changeScreen('batches')" id="nav-btn-batches" class="flex flex-col items-center gap-0.5 text-slate/70 hover:text-forest transition-colors">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+            <span>Batches</span>
+          </button>
+          
+          <button onclick="changeScreen('add_item')" id="nav-btn-add" class="flex flex-col items-center gap-0.5 text-slate/70 hover:text-forest transition-colors">
+            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+            <span>Add</span>
+          </button>
+
+          <button onclick="changeScreen('prep_planner')" id="nav-btn-prep" class="flex flex-col items-center gap-0.5 text-slate/70 hover:text-forest transition-colors">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+            <span>Prep</span>
+          </button>
+
+          <button onclick="changeScreen('insights')" id="nav-btn-insights" class="flex flex-col items-center gap-0.5 text-slate/70 hover:text-forest transition-colors">
+            <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+            <span>Insights</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Alert Overlay within Shell frame -->
+  <div id="toast-notif" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-forest text-cream font-medium text-xs py-3 px-5 rounded-2xl flex items-center gap-2 shadow-2xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300 z-[9999] max-w-sm">
+    <i data-lucide="info" class="w-4 h-4 text-turmeric"></i>
+    <span id="toast-message">Item added successfully.</span>
+  </div>
+
+  <script>
+    // Global SQLite database simulation array
+    let pantryDb = [];
+    let batchesDb = [];
+    let shoppingListDb = [];
+    let wasteDb = [];
+    let activeScreen = 'onboarding';
+    let activeAddSubTab = 'manual';
+    let selectedUserType = 'student';
+
+    // Seed preset lists
+    const PH_GROCERY_PRESETS = {
+      puregold: `PUREGOLD EXTRA CABUYAO
+TEL NO. (049) 567-1234
+12/06/2026 14:32   ST.0163
+
+CDO HOFRG H-DOG 1K    P380.00
+KANGKONG BNDL         P25.00
+SMO BLU VAN 500M      P155.00
+NESTLE C-MILK 1L      P110.00
+PORK LIEMPO 1KG       P365.00
+-----------------------------
+TOTAL                 P1,035.00
+CASH RECEIVED         P1,100.00`,
+
+      palengke: `TALONG (EGGPLANT) 1/2 KG
+BANGUS BIG 1PC
+SITAW PACK
+GARLIC BNDL
+SABA BANANA BNDL`
+    };
+
+    // Dictionary fuzzy lookup database simulated
+    const FUZZY_SQLITE_DICTIONARY = [
+      { trigger: "CDO HOFRG H-DOG", name: "CDO Hotdog 1kg", category: "Processed Meat", shelfLife: 14, defaultZone: "Freezer" },
+      { trigger: "KANGKONG BNDL", name: "Kangkong bundle", category: "Leafy Greens", shelfLife: 2, defaultZone: "Ref" },
+      { trigger: "SMO BLU VAN", name: "Selecta Vanilla Ice Cream 500ml", category: "Dairy", shelfLife: 30, defaultZone: "Freezer" },
+      { trigger: "NESTLE C-MILK", name: "Nestle Condensed Milk 1L", category: "Pantry Staples", shelfLife: 60, defaultZone: "Pantry" },
+      { trigger: "PORK LIEMPO", name: "Pork Liempo 1kg", category: "Raw Pork", shelfLife: 3, defaultZone: "Ref" },
+      { trigger: "TALONG", name: "Eggplant (Talong)", category: "Vegetables", shelfLife: 5, defaultZone: "Ref" },
+      { trigger: "BANGUS", name: "Bangus (Milkfish)", category: "Fresh Fish", shelfLife: 3, defaultZone: "Ref" },
+      { trigger: "SITAW", name: "Sitaw (Yardlong Beans)", category: "Vegetables", shelfLife: 6, defaultZone: "Ref" },
+      { trigger: "GARLIC", name: "Garlic (Bawang)", category: "Pantry Staples", shelfLife: 21, defaultZone: "Pantry" },
+      { trigger: "SABA", name: "Saba Banana bundle", category: "Fruit", shelfLife: 4, defaultZone: "Pantry" }
+    ];
+
+    // OCR dynamic parsed container holding array
+    let tempOcrParsedItems = [];
+
+    window.onload = function() {
+      // Start system setup
+      injectPresetPantry();
+      changeScreen('onboarding');
+      lucide.createIcons();
+    };
+
+    // UI screen router logic (Vanilla SPA simulation)
+    function changeScreen(screenId) {
+      activeScreen = screenId;
+      
+      const screens = ['onboarding', 'pantry', 'batches', 'add_item', 'prep_planner', 'insights', 'shopping_list'];
+      screens.forEach(s => {
+        const el = document.getElementById(`screen-${s}`);
+        if (el) el.classList.add('hidden');
+      });
+      
+      const targetEl = document.getElementById(`screen-${screenId}`);
+      if (targetEl) targetEl.classList.remove('hidden');
+
+      // Floating nav bar display controller
+      const navBar = document.getElementById('global-nav');
+      if (screenId === 'onboarding') {
+        navBar.classList.add('hidden');
+      } else {
+        navBar.classList.remove('hidden');
+        updateActiveNavState(screenId);
+      }
+
+      // Page triggers
+      if (screenId === 'pantry') {
+        renderPantry();
+      } else if (screenId === 'batches') {
+        renderBatches();
+      } else if (screenId === 'insights') {
+        renderInsights();
+      } else if (screenId === 'shopping_list') {
+        renderShoppingGapList();
+      } else if (screenId === 'prep_planner') {
+        generateSmartPrepEngine();
+      }
+
+      logSystem(`Navigated to screen: [${screenId.toUpperCase()}]`);
+      lucide.createIcons();
+    }
+
+    function updateActiveNavState(active) {
+      const btns = ['pantry', 'batches', 'add', 'prep', 'insights'];
+      btns.forEach(btn => {
+        const el = document.getElementById(`nav-btn-${btn}`);
+        if (!el) return;
+        el.className = "flex flex-col items-center gap-0.5 text-slate/70 hover:text-forest transition-colors";
+      });
+
+      // Special custom routing match
+      let matchBtn = active;
+      if (active === 'add_item') matchBtn = 'add';
+      if (active === 'prep_planner') matchBtn = 'prep';
+      if (active === 'shopping_list') matchBtn = 'prep'; // share navigation block
+
+      const activeEl = document.getElementById(`nav-btn-${matchBtn}`);
+      if (activeEl) {
+        activeEl.className = "flex flex-col items-center gap-0.5 text-forest font-bold transition-colors";
+      }
+    }
+
+    // System Log print out helper (Redirects cleanly to web console now that left side panel is removed)
+    function logSystem(message, isUrgent = false) {
+      const consoleLogEl = document.getElementById('console-logs');
+      if (!consoleLogEl) {
+        console.log(`[SQLite Engine] ${message}`);
+        return;
+      }
+      const color = isUrgent ? 'text-rose-400 font-bold' : 'text-emerald-300';
+      consoleLogEl.innerHTML += `<div class="${color}">[SQLite Engine] ${message}</div>`;
+      consoleLogEl.scrollTop = consoleLogEl.scrollHeight;
+    }
+
+    // Interactive Notification Toast
+    function showToast(message, duration = 3000) {
+      const toast = document.getElementById('toast-notif');
+      const text = document.getElementById('toast-message');
+      text.innerText = message;
+      toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, duration);
+    }
+
+    // Reset Pantry & Load Default values matching style guide image
+    function injectPresetPantry() {
+      pantryDb = [
+        { id: 1, name: "Kangkong", category: "Leafy Greens", zone: "Ref", expiryDays: 1, qty: "1 bundle" },
+        { id: 2, name: "Chicken breast", category: "Raw Poultry", zone: "Ref", expiryDays: 3, qty: "500g" },
+        { id: 3, name: "Garlic", category: "Pantry Staples", zone: "Pantry", expiryDays: 12, qty: "2 bulbs" },
+        { id: 4, name: "Sitaw", category: "Vegetables", zone: "Ref", expiryDays: 6, qty: "1 bundle" }
+      ];
+
+      batchesDb = [
+        { id: 1001, name: "Chicken Adobo", portions: 4, expiryDays: 3 }
+      ];
+
+      shoppingListDb = [
+        { id: 101, name: "Talong", category: "Vegetables", store: "Wet Market", checked: false },
+        { id: 102, name: "Soya Sauce 500ml", category: "Pantry Staples", store: "Supermarket", checked: false },
+        { id: 103, name: "Pork Liempo", category: "Raw Pork", store: "Wet Market", checked: false }
+      ];
+
+      wasteDb = [
+        { name: "Calamansi (10pcs)", date: "3 days ago", status: "Spoiled", cost: 35 },
+        { name: "Kangkong bundle", date: "Last week", status: "Spoiled", cost: 25 },
+        { name: "Saba Banana pack", date: "2 weeks ago", status: "Consumed", cost: 0 }
+      ];
+
+      logSystem("Database resetted to standard state.");
+      if (activeScreen === 'pantry') renderPantry();
+    }
+
+    // Onboarding type switch configuration
+    function selectOnboardingType(type) {
+      selectedUserType = type;
+      const studentBtn = document.getElementById('btn-user-student');
+      const houseBtn = document.getElementById('btn-user-house');
+      const desc = document.getElementById('onboarding-desc');
+
+      if (type === 'student') {
+        studentBtn.className = "p-2.5 rounded-2xl bg-cream border border-forest text-xs font-bold text-center text-forest transition-all";
+        houseBtn.className = "p-2.5 rounded-2xl bg-cream border border-transparent text-xs font-medium text-center hover:bg-stone/20 transition-all";
+        desc.innerText = "Shorter preservation window alerts. Setup perfect for single dorm fridges.";
+      } else {
+        houseBtn.className = "p-2.5 rounded-2xl bg-cream border border-forest text-xs font-bold text-center text-forest transition-all";
+        studentBtn.className = "p-2.5 rounded-2xl bg-cream border border-transparent text-xs font-medium text-center hover:bg-stone/20 transition-all";
+        desc.innerText = "Shared family tracking enabled. Includes local Wet-Market seasonal prediction buffers.";
+      }
+      logSystem(`Onboarding config set to: ${type.toUpperCase()}`);
+    }
+
+    function completeOnboarding() {
+      changeScreen('pantry');
+      showToast("Welcome to PrepMate!");
+    }
+
+    // Expiry calculation color mapping helper
+    function getUrgencyMetadata(days) {
+      if (days <= 1) {
+        return { color: 'bg-today', label: 'Use today', textClass: 'text-today' };
+      } else if (days <= 4) {
+        return { color: 'bg-soon', label: 'This week', textClass: 'text-soon' };
+      } else {
+        return { color: 'bg-safe', label: 'Safe', textClass: 'text-safe' };
+      }
+    }
+
+    // RENDER: Pantry View Screen logic
+    function renderPantry() {
+      const listEl = document.getElementById('pantry-list');
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const selectedZone = document.getElementById('zone-filter').value;
+      listEl.innerHTML = '';
+
+      // Perform SQLite simulated filter
+      let filtered = pantryDb.filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(search) || item.category.toLowerCase().includes(search);
+        const matchesZone = selectedZone === 'All' || item.zone === selectedZone;
+        return matchesSearch && matchesZone;
+      });
+
+      // Sort by urgency index (lowest expiry days first)
+      filtered.sort((a, b) => a.expiryDays - b.expiryDays);
+
+      // Re-calculate statistics for header components
+      let countToday = 0;
+      let countSoon = 0;
+      let countSafe = 0;
+
+      pantryDb.forEach(item => {
+        if (item.expiryDays <= 1) countToday++;
+        else if (item.expiryDays <= 4) countSoon++;
+        else countSafe++;
+      });
+
+      const totalItems = pantryDb.length;
+      document.getElementById('pantry-total-badge').innerText = `${totalItems} items`;
+      document.getElementById('badge-count-today').innerText = `${countToday} item${countToday !== 1 ? 's' : ''} need${countToday === 1 ? 's' : ''} rescue`;
+
+      // Draw proportional horizontal matrix bars
+      const todayPct = totalItems > 0 ? (countToday / totalItems) * 100 : 0;
+      const soonPct = totalItems > 0 ? (countSoon / totalItems) * 100 : 0;
+      const safePct = totalItems > 0 ? (countSafe / totalItems) * 100 : 0;
+
+      document.getElementById('bar-today').style.width = `${todayPct}%`;
+      document.getElementById('bar-soon').style.width = `${soonPct}%`;
+      document.getElementById('bar-safe').style.width = `${safePct}%`;
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-10 text-slate/50">
+            <i data-lucide="inbox" class="w-8 h-8 mb-2"></i>
+            <p class="text-xs">No matching food found.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      // Inject Card layouts as specified in image UI design sheet
+      filtered.forEach(item => {
+        const meta = getUrgencyMetadata(item.expiryDays);
+        
+        const cardHtml = `
+          <div class="bg-cream border border-stone/30 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-all fade-enter">
+            <div class="flex items-center gap-3">
+              <!-- Urgent indicator dot layout from spec sheet -->
+              <span class="w-3.5 h-3.5 rounded-full ${meta.color} flex-shrink-0"></span>
+              <div>
+                <p class="text-sm font-bold text-soil">${item.name}</p>
+                <p class="text-[10px] text-slate/60">${item.category} • ${item.qty} • ${item.zone}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-slate/80 bg-stone/20 px-2 py-1 rounded-lg">${item.expiryDays}d left</span>
+              
+              <!-- Quick actions to delete or trigger consumed status -->
+              <div class="flex gap-1">
+                <button onclick="consumeItemDirectly(${item.id})" class="p-1.5 rounded-lg hover:bg-forest/10 text-forest transition-colors" title="Consumed">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+                <button onclick="discardItemDirectly(${item.id})" class="p-1.5 rounded-lg hover:bg-today/10 text-today transition-colors" title="Wasted">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        listEl.innerHTML += cardHtml;
+      });
+
+      lucide.createIcons();
+    }
+
+    // Consume item logic
+    function consumeItemDirectly(id) {
+      const idx = pantryDb.findIndex(x => x.id === id);
+      if (idx > -1) {
+        const item = pantryDb[idx];
+        pantryDb.splice(idx, 1);
+        wasteDb.unshift({ name: item.name, date: "Just now", status: "Consumed", cost: 0 });
+        logSystem(`Consumed [${item.name}] from storage.`);
+        renderPantry();
+        showToast(`Yum! Consumed ${item.name}.`);
+      }
+    }
+
+    // Discard / Waste item logic
+    function discardItemDirectly(id) {
+      const idx = pantryDb.findIndex(x => x.id === id);
+      if (idx > -1) {
+        const item = pantryDb[idx];
+        pantryDb.splice(idx, 1);
+        const randomCost = Math.floor(Math.random() * 150) + 20;
+        wasteDb.unshift({ name: item.name, date: "Just now", status: "Spoiled", cost: randomCost });
+        logSystem(`Spoiled and Discarded [${item.name}]. Loss calculated at ₱${randomCost}.`, true);
+        renderPantry();
+        showToast(`Discarded ${item.name}. logged to waste ledger.`);
+      }
+    }
+
+    // Trigger simulation of item going bad inside database
+    function triggerSimulateWaste() {
+      if (pantryDb.length === 0) {
+        showToast("Pantry is empty. Reset defaults first!");
+        return;
+      }
+      const randomIdx = Math.floor(Math.random() * pantryDb.length);
+      const item = pantryDb[randomIdx];
+      item.expiryDays = Math.max(0, item.expiryDays - 2);
+      logSystem(`Environmental degradation simulation: [${item.name}] shelf life dropped.`, true);
+      renderPantry();
+      showToast(`${item.name} is rotting faster due to high humidity! Check pantry.`);
+    }
+
+    // Filter list to only target urgency elements
+    function filterUrgency(urgency) {
+      if (urgency === 'Today') {
+        document.getElementById('search-input').value = 'Leafy';
+        logSystem("Fuzzy-filtering pantry for Leafy urgency components.");
+        renderPantry();
+        document.getElementById('search-input').value = ''; // Clean reset
+      }
+    }
+
+    // SUBTABS Toggle Navigation inside LOGGING interface
+    function openSubTab(subTabId) {
+      activeAddSubTab = subTabId;
+      const tabs = ['manual', 'ocr', 'barcode'];
+      tabs.forEach(t => {
+        const subTabEl = document.getElementById(`subtab-${t}`);
+        if (subTabEl) subTabEl.classList.add('hidden');
+        
+        const tabBtnEl = document.getElementById(`tab-btn-${t}`);
+        if (tabBtnEl) tabBtnEl.className = "flex-1 text-[11px] font-bold py-1.5 rounded-lg text-center transition-all text-slate/70";
+      });
+
+      const activeSubTabEl = document.getElementById(`subtab-${subTabId}`);
+      if (activeSubTabEl) activeSubTabEl.classList.remove('hidden');
+      
+      const activeTabBtnEl = document.getElementById(`tab-btn-${subTabId}`);
+      if (activeTabBtnEl) activeTabBtnEl.className = "flex-1 text-[11px] font-bold py-1.5 rounded-lg text-center transition-all bg-cream shadow-sm text-forest";
+      
+      logSystem(`Switched add subtab to: [${subTabId.toUpperCase()}]`);
+      lucide.createIcons();
+    }
+
+    // QUICK PRESET TAP LOGIC FOR MANUAL ENTRY
+    function addPresetItem(name, category, zone, shelfLife) {
+      const newItem = {
+        id: Date.now(),
+        name: name,
+        category: category,
+        zone: zone,
+        expiryDays: shelfLife,
+        qty: "1 bundle"
+      };
+      pantryDb.push(newItem);
+      logSystem(`Quick preset added item [${name}] into ${zone} with ${shelfLife}-day buffer.`);
+      showToast(`Added ${name} to pantry!`);
+      changeScreen('pantry');
+    }
+
+    // FORM SAVING LOGIC (MANUAL)
+    function saveManualEntry() {
+      const name = document.getElementById('manual-name').value.trim();
+      const zone = document.getElementById('manual-zone').value;
+      const qty = document.getElementById('manual-qty').value.trim() || "1 unit";
+      
+      if (!name) {
+        showToast("Please enter an item name.");
+        return;
+      }
+
+      // Quick deterministic category guesser to bypass TFLite overhead
+      let category = "Pantry Staples";
+      let expiry = 14;
+      
+      const lName = name.toLowerCase();
+      if (lName.includes('pork') || lName.includes('beef') || lName.includes('meat') || lName.includes('liempo')) {
+        category = "Raw Meat";
+        expiry = zone === 'Freezer' ? 30 : 3;
+      } else if (lName.includes('chicken') || lName.includes('manok') || lName.includes('poultry')) {
+        category = "Raw Poultry";
+        expiry = zone === 'Freezer' ? 30 : 3;
+      } else if (lName.includes('fish') || lName.includes('bangus') || lName.includes('salmon') || lName.includes('tilapia')) {
+        category = "Fresh Fish";
+        expiry = zone === 'Freezer' ? 14 : 2;
+      } else if (lName.includes('kangkong') || lName.includes('spinach') || lName.includes('pechay') || lName.includes('salad')) {
+        category = "Leafy Greens";
+        expiry = zone === 'Ref' ? 3 : 1;
+      } else if (lName.includes('onion') || lName.includes('garlic') || lName.includes('ginger') || lName.includes('bawang')) {
+        category = "Aromatics";
+        expiry = zone === 'Pantry' ? 30 : 15;
+      } else if (lName.includes('eggplant') || lName.includes('sitaw') || lName.includes('talong') || lName.includes('tomato')) {
+        category = "Vegetables";
+        expiry = zone === 'Ref' ? 7 : 3;
+      }
+
+      const newItem = {
+        id: Date.now(),
+        name: name,
+        category: category,
+        zone: zone,
+        expiryDays: expiry,
+        qty: qty
+      };
+
+      pantryDb.push(newItem);
+      logSystem(`Custom Entry saved: [${name}] classified as [${category}].`);
+      showToast(`Added ${name} to pantry.`);
+      
+      // Clear forms
+      document.getElementById('manual-name').value = '';
+      document.getElementById('manual-qty').value = '';
+      
+      changeScreen('pantry');
+    }
+
+    // OCR RECEIPT PRESETS INJECTOR
+    function fillReceiptPreset(type) {
+      const textarea = document.getElementById('ocr-textarea');
+      if (type === 'puregold') {
+        textarea.value = PH_GROCERY_PRESETS.puregold;
+        logSystem("Loaded Puregold simulated supermarket receipt text.");
+      } else {
+        textarea.value = PH_GROCERY_PRESETS.palengke;
+        logSystem("Loaded simulated Wet-Market hand-written list note.");
+      }
+      // Reset output container display
+      document.getElementById('ocr-results').classList.add('hidden');
+    }
+
+    // THE DETERMINISTIC FUZZY MATCH ENGINE (TECHNICAL CORE WORK)
+    function simulateReceiptStandardization() {
+      const text = document.getElementById('ocr-textarea').value.trim();
+      if (!text) {
+        showToast("Please enter or select raw receipt text to test the scanner.");
+        return;
+      }
+
+      logSystem("Starting Levenshtein string-distance OCR extraction parser...");
+      
+      const lines = text.split('\n');
+      tempOcrParsedItems = [];
+      
+      lines.forEach(line => {
+        // Clean text line of prices, quantities, symbols, numbers
+        const cleanLine = line.replace(/[0-9]+/g, '') // remove numbers
+                              .replace(/P\s*/g, '')   // remove P (Peso sign)
+                              .replace(/[\.\-\,]/g, '') // remove decimals/hyphens
+                              .trim();
+
+        if (cleanLine.length < 3) return; // Skip garbage lines
+
+        // Fuzzy Match Algorithm: Let's loop through the local standard dictionary
+        let matchCandidate = null;
+        let highestScore = 0;
+
+        FUZZY_SQLITE_DICTIONARY.forEach(dictItem => {
+          const score = stringSimilarity(cleanLine.toUpperCase(), dictItem.trigger.toUpperCase());
+          if (score > highestScore && score > 0.3) {
+            highestScore = score;
+            matchCandidate = dictItem;
+          }
+        });
+
+        if (matchCandidate) {
+          // Add normalized candidate to stack
+          tempOcrParsedItems.push({
+            id: Date.now() + Math.random(),
+            rawText: line.trim(),
+            name: matchCandidate.name,
+            category: matchCandidate.category,
+            expiryDays: matchCandidate.shelfLife,
+            zone: matchCandidate.defaultZone,
+            confidence: Math.round(highestScore * 100)
+          });
+        } else {
+          // Fallback parsing for unknown entries
+          tempOcrParsedItems.push({
+            id: Date.now() + Math.random(),
+            rawText: line.trim(),
+            name: cleanLine, // standard fallback
+            category: "General Groceries",
+            expiryDays: 7,
+            zone: "Pantry",
+            confidence: 45 // lower confidence flag
+          });
+        }
+      });
+
+      // Display dynamic rendering output cards to UI
+      const resultsContainer = document.getElementById('ocr-results');
+      const itemsList = document.getElementById('ocr-items-list');
+      itemsList.innerHTML = '';
+      resultsContainer.classList.remove('hidden');
+
+      tempOcrParsedItems.forEach(item => {
+        const confColor = item.confidence > 70 ? 'text-emerald-500' : 'text-amber-500';
+        itemsList.innerHTML += `
+          <div class="bg-cream/80 p-2.5 rounded-xl border border-stone/20 text-xs flex justify-between items-center">
+            <div>
+              <p class="font-mono text-[9px] text-slate/50">Raw: "${item.rawText}"</p>
+              <p class="font-bold text-soil">${item.name}</p>
+              <p class="text-[9px] text-slate/60">${item.category} • Expiry: <span class="font-bold text-forest">${item.expiryDays}d</span> in ${item.zone}</p>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] font-mono font-bold ${confColor}">${item.confidence}% match</span>
+            </div>
+          </div>
+        `;
+      });
+
+      logSystem(`Successfully standardized ${tempOcrParsedItems.length} lines with local dictionary cache.`);
+    }
+
+    // Levenshtein / Dice Coefficient Helper for Local Fuzzy Matching
+    function stringSimilarity(s1, s2) {
+      let longer = s1;
+      let shorter = s2;
+      if (s1.length < s2.length) {
+        longer = s2;
+        shorter = s1;
+      }
+      const longerLength = longer.length;
+      if (longerLength === 0) {
+        return 1.0;
+      }
+      return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+    }
+
+    function editDistance(s1, s2) {
+      s1 = s1.toLowerCase();
+      s2 = s2.toLowerCase();
+
+      const costs = new Array();
+      for (let i = 0; i <= s1.length; i++) {
+        let lastValue = i;
+        for (let j = 0; j <= s2.length; j++) {
+          if (i == 0)
+            costs[j] = j;
+          else {
+            if (j > 0) {
+              let newValue = costs[j - 1];
+              if (s1.charAt(i - 1) != s2.charAt(j - 1))
+                newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+              costs[j - 1] = lastValue;
+              lastValue = newValue;
+            }
+          }
+        }
+        if (i > 0)
+          costs[s2.length] = lastValue;
+      }
+      return costs[s2.length];
+    }
+
+    function addAllOcrParsedItems() {
+      if (tempOcrParsedItems.length === 0) return;
+      tempOcrParsedItems.forEach(item => {
+        pantryDb.push({
+          id: item.id,
+          name: item.name,
+          category: item.category,
+          zone: item.zone,
+          expiryDays: item.expiryDays,
+          qty: "1 pack"
+        });
+      });
+      logSystem(`Committed ${tempOcrParsedItems.length} parsed items into SQLite Storage Engine.`);
+      showToast(`Imported ${tempOcrParsedItems.length} receipt items!`);
+      tempOcrParsedItems = [];
+      document.getElementById('ocr-results').classList.add('hidden');
+      changeScreen('pantry');
+    }
+
+    // BARCODE SIMULATION SCANS
+    function triggerMockBarcode(name, category, shelfLife) {
+      const barcodeItem = {
+        id: Date.now(),
+        name: name,
+        category: category,
+        zone: "Pantry",
+        expiryDays: shelfLife,
+        qty: "1 packet"
+      };
+      pantryDb.push(barcodeItem);
+      logSystem(`Barcode matched item: [${name}] via local offline lookup file.`);
+      showToast(`Scanned: ${name}`);
+      changeScreen('pantry');
+    }
+
+
+    // MEAL PREP PLAN GENERATOR - SET INTERSECTION CONSTRAINT ALGORITHM
+    function generatePrepPlan() {
+      changeScreen('prep_planner');
+    }
+
+    function generateSmartPrepEngine() {
+      logSystem("Compiling Set Intersection constraint algorithm for meal selection...");
+      
+      // Pull expiring elements: "Today" and "Soon" are target factors
+      const criticalIngredients = pantryDb.filter(item => item.expiryDays <= 4);
+      
+      const rescuedText = document.getElementById('plan-rescued-text');
+      if (criticalIngredients.length > 0) {
+        rescuedText.innerText = `${criticalIngredients.length} critical items rescued from waste`;
+        logSystem(`Priority queue identified: [${criticalIngredients.map(i=>i.name).join(', ')}] as expiring items.`);
+      } else {
+        rescuedText.innerText = "All active items are safe. Routine meal cycle generated.";
+      }
+    }
+
+    // Trigger state changes when marking meals as prepared (database consumption)
+    function commitPreppedMeals() {
+      logSystem("Marking prep session as committed. Pruning SQLite database entries...");
+      
+      // Filter out raw items consumed during prep (Kangkong & Chicken breast)
+      pantryDb = pantryDb.filter(item => {
+        const isExpiringGreens = item.name.toLowerCase().includes('kangkong');
+        const isExpiringPoultry = item.name.toLowerCase().includes('chicken');
+        return !isExpiringGreens && !isExpiringPoultry;
+      });
+
+      // Insert prepped cooked leftovers to database with custom extension runtimes!
+      batchesDb.push({
+        id: Date.now(),
+        name: "Cooked Adobo Kangkong w/ Chicken",
+        portions: 3,
+        expiryDays: 4
+      });
+
+      logSystem("Injected [Cooked Adobo Kangkong w/ Chicken] into Batches storage with 4-day expiry extension.");
+      showToast("Prep committed! Created new batch.");
+      changeScreen('batches');
+    }
+
+
+    // RENDER: Batches Screen logic
+    function renderBatches() {
+      const listEl = document.getElementById('batches-list');
+      listEl.innerHTML = '';
+      
+      const totalBatches = batchesDb.length;
+      document.getElementById('batches-total-badge').innerText = `${totalBatches} batches`;
+      
+      if (batchesDb.length === 0) {
+        listEl.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-10 text-slate/50">
+            <i data-lucide="layers" class="w-8 h-8 mb-2"></i>
+            <p class="text-xs">No prepped batches yet.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+      
+      batchesDb.forEach(batch => {
+        const meta = getUrgencyMetadata(batch.expiryDays);
+        const cardHtml = `
+          <div class="bg-cream border border-stone/30 rounded-2xl p-4 shadow-sm fade-enter">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-sm font-bold text-soil">${batch.name}</p>
+                <div class="flex items-center gap-1.5 mt-1">
+                  <span class="w-2 h-2 rounded-full ${meta.color}"></span>
+                  <span class="text-[10px] text-slate/60">${batch.expiryDays} days left</span>
+                </div>
+              </div>
+              <div class="bg-stone/20 px-2 py-1 rounded-lg">
+                <span class="text-xs font-bold text-slate/80">${batch.portions} Portions</span>
+              </div>
+            </div>
+            
+            <button onclick="consumeBatchPortion(${batch.id})" class="w-full bg-mist text-forest text-xs py-2 rounded-xl font-bold flex items-center justify-center gap-1.5 hover:bg-mist/80 transition-colors">
+              <i data-lucide="utensils" class="w-4 h-4 text-forest"></i> Eat 1 Portion
+            </button>
+          </div>
+        `;
+        listEl.innerHTML += cardHtml;
+      });
+      lucide.createIcons();
+    }
+    
+    function consumeBatchPortion(id) {
+      const idx = batchesDb.findIndex(x => x.id === id);
+      if (idx > -1) {
+        const batch = batchesDb[idx];
+        batch.portions -= 1;
+        wasteDb.unshift({ name: batch.name + " (1 portion)", date: "Just now", status: "Consumed", cost: 0 });
+        showToast(`Yum! Ate 1 portion of ${batch.name}.`);
+        logSystem(`Consumed 1 portion of batch [${batch.name}].`);
+        
+        if (batch.portions <= 0) {
+          batchesDb.splice(idx, 1);
+          logSystem(`Batch [${batch.name}] is fully consumed.`);
+        }
+        renderBatches();
+      }
+    }
+
+    // RENDER: Insights & Waste statistics
+    function renderInsights() {
+      // Calculate active gamified score
+      // Total items saved vs discarded ratio
+      const spoiledCount = wasteDb.filter(w => w.status === 'Spoiled').length;
+      const consumedCount = wasteDb.filter(w => w.status === 'Consumed').length;
+      
+      let score = 100;
+      if (spoiledCount + consumedCount > 0) {
+        score = Math.round((consumedCount / (spoiledCount + consumedCount)) * 100);
+      }
+      
+      // Safeguard display minimum
+      if (score < 30) score = 45;
+
+      document.getElementById('insights-score').innerText = `${score}%`;
+      
+      const historyContainer = document.getElementById('waste-history-logs');
+      historyContainer.innerHTML = '';
+
+      if (wasteDb.length === 0) {
+        historyContainer.innerHTML = `<p class="text-xs text-slate/50">No logs found.</p>`;
+        return;
+      }
+
+      wasteDb.forEach(log => {
+        const icon = log.status === 'Spoiled' ? 'trash-2' : 'check-circle-2';
+        const badgeColor = log.status === 'Spoiled' ? 'bg-red-100 text-today border border-red-200' : 'bg-emerald-100 text-forest border border-emerald-200';
+        const costText = log.cost > 0 ? `• Loss: ₱${log.cost}` : '';
+        
+        historyContainer.innerHTML += `
+          <div class="bg-cream/80 border border-stone/30 p-3 rounded-2xl flex items-center justify-between transition-all">
+            <div class="flex items-center gap-2">
+              <div class="p-1.5 rounded-lg ${log.status === 'Spoiled' ? 'bg-red-50 text-today' : 'bg-emerald-50 text-forest'}">
+                <i data-lucide="${icon}" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-soil">${log.name}</p>
+                <p class="text-[9px] text-slate/60">${log.date} ${costText}</p>
+              </div>
+            </div>
+            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${badgeColor}">${log.status}</span>
+          </div>
+        `;
+      });
+
+      // Update proportional percentages
+      const totalLossCount = spoiledCount || 1;
+      const leafyPct = Math.round((wasteDb.filter(w => w.name.includes('Kangkong')).length / totalLossCount) * 100) || 45;
+      const veggiesPct = Math.round((wasteDb.filter(w => w.name.includes('Talong')).length / totalLossCount) * 100) || 35;
+      const proteinPct = Math.round((wasteDb.filter(w => w.name.includes('Calamansi')).length / totalLossCount) * 100) || 20;
+
+      document.getElementById('discard-percentage-greens').innerText = `${leafyPct}% of waste`;
+      document.getElementById('discard-percentage-veggies').innerText = `${veggiesPct}% of waste`;
+      document.getElementById('discard-percentage-proteins').innerText = `${proteinPct}% of waste`;
+
+      lucide.createIcons();
+    }
+
+
+    // RENDER: Smart Shopping Gap List
+    function renderShoppingGapList() {
+      logSystem("Comparing recipe parameters with pantry quantities to extract missing ingredient gaps.");
+      
+      const marketContainer = document.getElementById('market-shopping-items');
+      const supermarketContainer = document.getElementById('supermarket-shopping-items');
+      
+      if (marketContainer) marketContainer.innerHTML = '';
+      if (supermarketContainer) supermarketContainer.innerHTML = '';
+
+      const marketItems = shoppingListDb.filter(x => x.store === 'Wet Market');
+      const supermarketItems = shoppingListDb.filter(x => x.store === 'Supermarket');
+
+      if (marketItems.length === 0) {
+        if (marketContainer) marketContainer.innerHTML = `<p class="text-xs text-slate/50 italic p-2">All wet market items gathered.</p>`;
+      } else {
+        marketItems.forEach(item => {
+          const isChecked = item.checked ? 'checked' : '';
+          const strikeClass = item.checked ? 'line-through text-slate/50' : 'text-soil font-semibold';
+          if (marketContainer) {
+            marketContainer.innerHTML += `
+              <div class="bg-cream/80 p-3 rounded-2xl border border-stone/30 flex items-center justify-between transition-colors hover:bg-linen/20">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" onchange="toggleShoppingItem(${item.id})" ${isChecked} class="w-4 h-4 rounded text-forest border-stone/50 focus:ring-forest cursor-pointer">
+                  <span class="text-xs ${strikeClass}">${item.name}</span>
+                </div>
+                <span class="text-[9px] text-slate/50 font-medium">${item.category}</span>
+              </div>
+            `;
+          }
+        });
+      }
+
+      if (supermarketItems.length === 0) {
+        if (supermarketContainer) supermarketContainer.innerHTML = `<p class="text-xs text-slate/50 italic p-2">All supermarket items gathered.</p>`;
+      } else {
+        supermarketItems.forEach(item => {
+          const isChecked = item.checked ? 'checked' : '';
+          const strikeClass = item.checked ? 'line-through text-slate/50' : 'text-soil font-semibold';
+          if (supermarketContainer) {
+            supermarketContainer.innerHTML += `
+              <div class="bg-cream/80 p-3 rounded-2xl border border-stone/30 flex items-center justify-between transition-colors hover:bg-linen/20">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" onchange="toggleShoppingItem(${item.id})" ${isChecked} class="w-4 h-4 rounded text-forest border-stone/50 focus:ring-forest cursor-pointer">
+                  <span class="text-xs ${strikeClass}">${item.name}</span>
+                </div>
+                <span class="text-[9px] text-slate/50 font-medium">${item.category}</span>
+              </div>
+            `;
+          }
+        });
+      }
+    }
+
+    function toggleShoppingItem(id) {
+      const item = shoppingListDb.find(x => x.id === id);
+      if (item) {
+        item.checked = !item.checked;
+        logSystem(`Toggled shopping list check status: [${item.name}] = ${item.checked}`);
+        renderShoppingGapList();
+      }
+    }
+
+    // Add checked shopping list items directly to database pantry inventory
+    function addAllCheckedShoppingItems() {
+      const checkedItems = shoppingListDb.filter(x => x.checked);
+      if (checkedItems.length === 0) {
+        showToast("No bought items selected. Tap the check boxes first!");
+        return;
+      }
+
+      checkedItems.forEach(item => {
+        // Quick default shelf life guesser
+        let shelfLife = 7;
+        let zone = "Ref";
+
+        if (item.category === 'Vegetables') shelfLife = 5;
+        if (item.category === 'Pantry Staples') { shelfLife = 60; zone = "Pantry"; }
+        if (item.category.includes('Pork') || item.category.includes('Meat')) shelfLife = 3;
+
+        pantryDb.push({
+          id: Date.now() + Math.random(),
+          name: item.name,
+          category: item.category,
+          zone: zone,
+          expiryDays: shelfLife,
+          qty: "1 pack"
+        });
+      });
+
+      // Clear checked items from shopping gap list db
+      shoppingListDb = shoppingListDb.filter(x => !x.checked);
+
+      logSystem(`Imported ${checkedItems.length} checked items from shopping gap list into active pantry.`);
+      showToast(`Imported ${checkedItems.length} items to pantry storage!`);
+      changeScreen('pantry');
+    }
+  </script>
+</body>
+</html>
