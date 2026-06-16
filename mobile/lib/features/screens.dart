@@ -5,3 +5,4 @@ export 'planner/prep_planner_screen.dart';
 export 'batches/batches_screen.dart';
 export 'insights/insights_screen.dart';
 export 'onboarding/onboarding_screen.dart';
+export 'shopping/shopping_list_screen.dart';
