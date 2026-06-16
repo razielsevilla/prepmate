@@ -65,14 +65,19 @@
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    
+    #phone-shell {
+      transform: scale(min(1, min(calc(100vw / 420), calc(100vh / 850))));
+      transform-origin: center;
+    }
   </style>
 </head>
-<body class="bg-soil text-soil font-sans min-h-screen flex items-center justify-center p-4">
+<body class="bg-[#2C2416] text-soil font-sans min-h-screen flex items-center justify-center p-4 overflow-hidden relative">
 
   <!-- Premium Mobile Shell Mockup with UI Screens centered on screen -->
-  <div class="flex-none flex justify-center items-center">
+  <div class="flex-none flex justify-center items-center w-full h-full">
     <!-- Phone Container with realistic borders, shadow, and speaker bar -->
-    <div class="relative w-[395px] h-[812px] bg-slate rounded-[50px] p-3 shadow-2xl border-4 border-slate/70 flex flex-col justify-between overflow-hidden">
+    <div id="phone-shell" class="relative w-[395px] h-[812px] bg-slate rounded-[50px] p-3 shadow-2xl border-4 border-slate/70 flex flex-col justify-between overflow-hidden flex-shrink-0">
       <!-- Speaker & Sensor notch -->
       <div class="absolute top-4 left-1/2 -translate-x-1/2 w-32 h-5 bg-slate rounded-full z-50 flex items-center justify-center">
         <span class="w-12 h-1 bg-soil/70 rounded-full"></span>
@@ -136,7 +141,7 @@
             </div>
 
             <!-- Urgent Warnings Ribbon (Matching Design Sheet Accent/Urgency) -->
-            <div onclick="filterUrgency('Today')" class="cursor-pointer bg-red-50 hover:bg-red-100 transition-colors p-3 rounded-2xl flex items-center justify-between border border-red-200/50">
+            <div onclick="toggleUrgencyFilter(1)" id="urgency-ribbon" class="cursor-pointer bg-red-50 hover:bg-red-100 transition-colors p-3 rounded-2xl flex items-center justify-between border border-red-200/50">
               <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-today animate-ping"></span>
                 <span class="text-xs font-semibold text-today uppercase tracking-wider">Use today</span>
@@ -348,9 +353,16 @@
             <div id="subtab-barcode" class="hidden space-y-4">
               <div class="aspect-video bg-soil rounded-3xl border-2 border-stone/40 relative overflow-hidden flex flex-col justify-center items-center">
                 <!-- Red scanning laser line -->
-                <div class="absolute w-full h-0.5 bg-today top-1/2 left-0 shadow-[0_0_8px_#9E3E23] animate-bounce"></div>
-                <i data-lucide="camera" class="w-10 h-10 text-stone/40 mb-2"></i>
-                <span class="text-xs text-stone/60">Simulating On-Device Camera View</span>
+                <div class="absolute w-full h-0.5 bg-today top-1/2 left-0 shadow-[0_0_8px_#9E3E23] animate-bounce z-20"></div>
+                <!-- Grid overlay -->
+                <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+                <!-- Corner brackets -->
+                <div class="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-white/50 rounded-tl-lg"></div>
+                <div class="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-white/50 rounded-tr-lg"></div>
+                <div class="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-white/50 rounded-bl-lg"></div>
+                <div class="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-white/50 rounded-br-lg"></div>
+                <i data-lucide="camera" class="w-10 h-10 text-stone/40 mb-2 z-10"></i>
+                <span class="text-xs text-stone/60 z-10">Simulating On-Device Camera View</span>
               </div>
               <p class="text-xs text-center text-slate/70">Point your device camera at a packaged UPC code to scan instant expiry data.</p>
               
@@ -407,44 +419,8 @@
             </div>
 
             <!-- Prep Session Flow -->
-            <div class="space-y-3">
-              <p class="text-xs font-semibold text-slate uppercase tracking-wider">Estimated Session: 35 Minutes</p>
-              
-              <!-- Grouping step 1 -->
-              <div class="bg-linen p-4 rounded-3xl border border-stone/30 space-y-3">
-                <div class="flex justify-between items-start">
-                  <span class="bg-today text-cream text-[10px] font-bold px-2 py-0.5 rounded-full">Batch 1: Stew & Sauté</span>
-                  <span class="text-xs text-slate/70">Rescuing 2 items</span>
-                </div>
-                <h4 class="font-serif text-md text-forest font-semibold">Stir-Fried Kangkong with Garlic & Chicken strips</h4>
-                <p class="text-xs text-slate leading-relaxed">
-                  Cook your expiring <span class="font-bold underline">Kangkong</span> and <span class="font-bold underline text-clay">Chicken breast</span> together immediately. The high sodium base preserves shelf-life of cooked foods up to 4 additional days.
-                </p>
-                <div class="p-2 bg-cream/60 rounded-xl text-[10px] text-slate/80 space-y-1">
-                  <p class="font-semibold text-forest">Prep Instructions:</p>
-                  <p>1. Shred chicken & mince Garlic.</p>
-                  <p>2. Blanch Kangkong stems first, then toss leaves.</p>
-                </div>
-              </div>
-
-              <!-- Storage & Shelf layout -->
-              <div class="bg-linen/40 p-4 rounded-3xl border border-stone/30 space-y-2">
-                <p class="text-[10px] font-bold text-slate uppercase tracking-wider flex items-center gap-1">
-                  <i data-lucide="snowflake" class="w-3.5 h-3.5 text-forest"></i> Smart Container Storage Map
-                </p>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <div class="bg-cream p-2.5 rounded-2xl border border-stone/20">
-                    <p class="font-bold text-forest">Meal 1-2</p>
-                    <p class="text-[10px] text-slate/70">Keep Refrigerated</p>
-                    <p class="text-[10px] text-today font-semibold">Eat by Thursday</p>
-                  </div>
-                  <div class="bg-cream p-2.5 rounded-2xl border border-stone/20">
-                    <p class="font-bold text-forest">Meal 3-4</p>
-                    <p class="text-[10px] text-slate/70">Freeze Airtight</p>
-                    <p class="text-[10px] text-safe font-semibold">Safe for 14d</p>
-                  </div>
-                </div>
-              </div>
+            <div class="space-y-3" id="prep-session-flow">
+              <!-- Dynamically populated by generateSmartPrepEngine -->
             </div>
 
             <!-- Recipe card detail suggestion link -->
@@ -480,17 +456,17 @@
             
             <!-- Gamified Score and Money Saving -->
             <div class="grid grid-cols-2 gap-3">
-              <div class="bg-linen p-4 rounded-3xl border border-stone/30 flex flex-col justify-between">
+              <div class="bg-linen p-4 rounded-3xl border border-stone/30 flex flex-col justify-between shadow-sm">
                 <span class="text-[10px] font-bold text-slate uppercase tracking-wider">Waste Score</span>
                 <div>
-                  <h3 class="text-3xl font-serif text-forest" id="insights-score">94%</h3>
+                  <h3 class="text-4xl font-serif text-forest mb-1" id="insights-score">94%</h3>
                   <span class="text-[10px] bg-forest/20 text-forest font-bold px-1.5 py-0.5 rounded">Excellent</span>
                 </div>
               </div>
-              <div class="bg-linen p-4 rounded-3xl border border-stone/30 flex flex-col justify-between">
+              <div class="bg-linen p-4 rounded-3xl border border-stone/30 flex flex-col justify-between shadow-sm">
                 <span class="text-[10px] font-bold text-slate uppercase tracking-wider">Est. Loss Saved</span>
                 <div>
-                  <h3 class="text-2xl font-bold text-forest font-mono">₱450.00</h3>
+                  <h3 class="text-3xl font-bold text-forest font-mono mb-1">₱450.00</h3>
                   <span class="text-[10px] text-slate/60">Saved this month</span>
                 </div>
               </div>
@@ -648,6 +624,11 @@
     </div>
   </div>
 
+  <!-- Demo Reset Button -->
+  <button onclick="injectPresetPantry(); showToast('Demo Reset'); changeScreen('onboarding');" class="fixed bottom-4 right-4 text-[10px] font-semibold text-stone/50 hover:text-stone bg-transparent p-2 rounded z-[9999] border border-stone/20 hover:border-stone/50 transition-colors uppercase tracking-wider">
+    Reset Prototype
+  </button>
+
   <!-- Custom Alert Overlay within Shell frame -->
   <div id="toast-notif" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-forest text-cream font-medium text-xs py-3 px-5 rounded-2xl flex items-center gap-2 shadow-2xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300 z-[9999] max-w-sm">
     <i data-lucide="info" class="w-4 h-4 text-turmeric"></i>
@@ -663,6 +644,8 @@
     let activeScreen = 'onboarding';
     let activeAddSubTab = 'manual';
     let selectedUserType = 'student';
+    let activeUrgencyFilter = null;
+    let preppedBatchIds = [];
 
     // Seed preset lists
     const PH_GROCERY_PRESETS = {
@@ -870,7 +853,8 @@ SABA BANANA BNDL`
       let filtered = pantryDb.filter(item => {
         const matchesSearch = item.name.toLowerCase().includes(search) || item.category.toLowerCase().includes(search);
         const matchesZone = selectedZone === 'All' || item.zone === selectedZone;
-        return matchesSearch && matchesZone;
+        const matchesUrgency = activeUrgencyFilter === null || item.expiryDays <= activeUrgencyFilter;
+        return matchesSearch && matchesZone && matchesUrgency;
       });
 
       // Sort by urgency index (lowest expiry days first)
@@ -988,13 +972,18 @@ SABA BANANA BNDL`
     }
 
     // Filter list to only target urgency elements
-    function filterUrgency(urgency) {
-      if (urgency === 'Today') {
-        document.getElementById('search-input').value = 'Leafy';
-        logSystem("Fuzzy-filtering pantry for Leafy urgency components.");
-        renderPantry();
-        document.getElementById('search-input').value = ''; // Clean reset
+    function toggleUrgencyFilter(days) {
+      if (activeUrgencyFilter === days) {
+        activeUrgencyFilter = null; // Toggle off
+        document.getElementById('urgency-ribbon').classList.remove('border-red-500', 'bg-red-100');
+        document.getElementById('urgency-ribbon').classList.add('border-red-200/50', 'bg-red-50');
+      } else {
+        activeUrgencyFilter = days;
+        document.getElementById('urgency-ribbon').classList.add('border-red-500', 'bg-red-100');
+        document.getElementById('urgency-ribbon').classList.remove('border-red-200/50', 'bg-red-50');
       }
+      logSystem(`Toggled urgency filter to <= ${days} days. (active: ${activeUrgencyFilter !== null})`);
+      renderPantry();
     }
 
     // SUBTABS Toggle Navigation inside LOGGING interface
@@ -1166,27 +1155,37 @@ SABA BANANA BNDL`
 
       // Display dynamic rendering output cards to UI
       const resultsContainer = document.getElementById('ocr-results');
+      resultsContainer.classList.remove('hidden');
+      renderOcrResults();
+
+      logSystem(`Successfully standardized ${tempOcrParsedItems.length} lines with local dictionary cache.`);
+    }
+
+    function renderOcrResults() {
       const itemsList = document.getElementById('ocr-items-list');
       itemsList.innerHTML = '';
-      resultsContainer.classList.remove('hidden');
-
       tempOcrParsedItems.forEach(item => {
         const confColor = item.confidence > 70 ? 'text-emerald-500' : 'text-amber-500';
         itemsList.innerHTML += `
-          <div class="bg-cream/80 p-2.5 rounded-xl border border-stone/20 text-xs flex justify-between items-center">
+          <div class="bg-cream/80 p-2.5 rounded-xl border border-stone/20 text-xs flex justify-between items-center" id="ocr-item-${item.id}">
             <div>
               <p class="font-mono text-[9px] text-slate/50">Raw: "${item.rawText}"</p>
               <p class="font-bold text-soil">${item.name}</p>
               <p class="text-[9px] text-slate/60">${item.category} • Expiry: <span class="font-bold text-forest">${item.expiryDays}d</span> in ${item.zone}</p>
             </div>
-            <div class="text-right">
+            <div class="text-right flex flex-col items-end gap-1">
               <span class="text-[10px] font-mono font-bold ${confColor}">${item.confidence}% match</span>
+              <button onclick="rejectOcrItem(${item.id})" class="text-[9px] text-today hover:underline font-semibold bg-today/10 px-1.5 py-0.5 rounded">Reject</button>
             </div>
           </div>
         `;
       });
+    }
 
-      logSystem(`Successfully standardized ${tempOcrParsedItems.length} lines with local dictionary cache.`);
+    function rejectOcrItem(id) {
+      tempOcrParsedItems = tempOcrParsedItems.filter(item => item.id !== id);
+      renderOcrResults();
+      logSystem(`Rejected OCR item id: ${id}`);
     }
 
     // Levenshtein / Dice Coefficient Helper for Local Fuzzy Matching
@@ -1274,38 +1273,98 @@ SABA BANANA BNDL`
     function generateSmartPrepEngine() {
       logSystem("Compiling Set Intersection constraint algorithm for meal selection...");
       
-      // Pull expiring elements: "Today" and "Soon" are target factors
       const criticalIngredients = pantryDb.filter(item => item.expiryDays <= 4);
-      
       const rescuedText = document.getElementById('plan-rescued-text');
+      const prepFlowContainer = document.getElementById('prep-session-flow');
+      
+      preppedBatchIds = []; // clear previous prep targets
+
       if (criticalIngredients.length > 0) {
-        rescuedText.innerText = `${criticalIngredients.length} critical items rescued from waste`;
+        rescuedText.innerText = `${criticalIngredients.length} items rescued from waste`;
         logSystem(`Priority queue identified: [${criticalIngredients.map(i=>i.name).join(', ')}] as expiring items.`);
+        
+        let prepItemsHtml = criticalIngredients.map(i => `<span class="font-bold underline">${i.name}</span>`).join(' and ');
+        preppedBatchIds = criticalIngredients.map(i => i.id); // store IDs to consume later
+
+        prepFlowContainer.innerHTML = `
+          <p class="text-xs font-semibold text-slate uppercase tracking-wider">Estimated Session: 35 Minutes</p>
+          
+          <div class="bg-linen p-4 rounded-3xl border border-stone/30 space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="bg-today text-cream text-[10px] font-bold px-2 py-0.5 rounded-full">Batch 1: Rescue Sauté</span>
+              <span class="text-xs text-slate/70">Rescuing ${criticalIngredients.length} items</span>
+            </div>
+            <h4 class="font-serif text-md text-forest font-semibold">Stir-Fried ${criticalIngredients[0].name} Mix</h4>
+            <p class="text-xs text-slate leading-relaxed">
+              Cook your expiring ${prepItemsHtml} together immediately. The high sodium base preserves shelf-life of cooked foods up to 4 additional days.
+            </p>
+            <div class="p-2 bg-cream/60 rounded-xl text-[10px] text-slate/80 space-y-1">
+              <p class="font-semibold text-forest">Prep Instructions:</p>
+              <p>1. Prepare ${criticalIngredients[0].name} first.</p>
+              <p>2. Toss remaining ingredients with garlic and soy sauce.</p>
+            </div>
+          </div>
+
+          <div class="bg-linen/40 p-4 rounded-3xl border border-stone/30 space-y-2">
+            <p class="text-[10px] font-bold text-slate uppercase tracking-wider flex items-center gap-1">
+              <i data-lucide="snowflake" class="w-3.5 h-3.5 text-forest"></i> Smart Container Storage Map
+            </p>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-cream p-2.5 rounded-2xl border border-stone/20">
+                <p class="font-bold text-forest">Meal 1-2</p>
+                <p class="text-[10px] text-slate/70">Keep Refrigerated</p>
+                <p class="text-[10px] text-today font-semibold">Eat by Thursday</p>
+              </div>
+              <div class="bg-cream p-2.5 rounded-2xl border border-stone/20">
+                <p class="font-bold text-forest">Meal 3-4</p>
+                <p class="text-[10px] text-slate/70">Freeze Airtight</p>
+                <p class="text-[10px] text-safe font-semibold">Safe for 14d</p>
+              </div>
+            </div>
+          </div>
+        `;
       } else {
-        rescuedText.innerText = "All active items are safe. Routine meal cycle generated.";
+        rescuedText.innerText = "All active items are safe.";
+        prepFlowContainer.innerHTML = `
+          <div class="bg-mist p-4 rounded-3xl border border-stone/20 text-center text-forest">
+            <i data-lucide="check-circle-2" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+            <p class="font-bold text-sm">Pantry is secure</p>
+            <p class="text-xs opacity-80 mt-1">No items expiring in the next 4 days. You can prep your routine meals.</p>
+          </div>
+        `;
       }
+      lucide.createIcons();
     }
 
-    // Trigger state changes when marking meals as prepared (database consumption)
     function commitPreppedMeals() {
+      if (preppedBatchIds.length === 0) {
+        showToast("Nothing to prep right now!");
+        return;
+      }
+      
       logSystem("Marking prep session as committed. Pruning SQLite database entries...");
       
-      // Filter out raw items consumed during prep (Kangkong & Chicken breast)
+      // Consume the items we planned
+      let batchNameParts = [];
       pantryDb = pantryDb.filter(item => {
-        const isExpiringGreens = item.name.toLowerCase().includes('kangkong');
-        const isExpiringPoultry = item.name.toLowerCase().includes('chicken');
-        return !isExpiringGreens && !isExpiringPoultry;
+        if (preppedBatchIds.includes(item.id)) {
+          batchNameParts.push(item.name);
+          return false; // remove
+        }
+        return true; // keep
       });
 
-      // Insert prepped cooked leftovers to database with custom extension runtimes!
+      let name = batchNameParts.length > 0 ? "Cooked " + batchNameParts[0] + " Mix" : "Prepared Batch";
+
+      // Insert prepped cooked leftovers to database
       batchesDb.push({
         id: Date.now(),
-        name: "Cooked Adobo Kangkong w/ Chicken",
+        name: name,
         portions: 3,
         expiryDays: 4
       });
 
-      logSystem("Injected [Cooked Adobo Kangkong w/ Chicken] into Batches storage with 4-day expiry extension.");
+      logSystem(`Injected [${name}] into Batches storage with 4-day expiry extension.`);
       showToast("Prep committed! Created new batch.");
       changeScreen('batches');
     }
@@ -1321,9 +1380,10 @@ SABA BANANA BNDL`
       
       if (batchesDb.length === 0) {
         listEl.innerHTML = `
-          <div class="flex flex-col items-center justify-center py-10 text-slate/50">
+          <div class="flex flex-col items-center justify-center py-10 text-slate/50 text-center">
             <i data-lucide="layers" class="w-8 h-8 mb-2"></i>
-            <p class="text-xs">No prepped batches yet.</p>
+            <p class="text-xs font-bold">No prepped batches yet.</p>
+            <p class="text-[10px] mt-1">Complete your first prep plan to create a batch.</p>
           </div>
         `;
         lucide.createIcons();
