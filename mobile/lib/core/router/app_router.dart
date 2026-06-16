@@ -36,8 +36,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/prep',
-                builder: (context, state) => const PrepPlannerScreen(),
+                path: '/batches',
+                builder: (context, state) => const BatchesScreen(),
               ),
             ],
           ),
@@ -52,8 +52,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/batches',
-                builder: (context, state) => const BatchesScreen(),
+                path: '/prep',
+                builder: (context, state) => const PrepPlannerScreen(),
               ),
             ],
           ),

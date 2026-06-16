@@ -24,9 +24,9 @@ class ScaffoldWithNavBar extends StatelessWidget {
             label: 'Pantry',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant_menu_outlined),
-            activeIcon: Icon(Icons.restaurant_menu),
-            label: 'Prep',
+            icon: Icon(Icons.layers_outlined), // Prototype has stacked squares icon for batches
+            activeIcon: Icon(Icons.layers),
+            label: 'Batches',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline),
@@ -34,9 +34,9 @@ class ScaffoldWithNavBar extends StatelessWidget {
             label: 'Add',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.kitchen_outlined),
-            activeIcon: Icon(Icons.kitchen),
-            label: 'Batches',
+            icon: Icon(Icons.auto_awesome_outlined), // Prototype has sparkle icon for Prep
+            activeIcon: Icon(Icons.auto_awesome),
+            label: 'Prep',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.insights_outlined),

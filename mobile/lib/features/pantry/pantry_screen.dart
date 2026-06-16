@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/models/models.dart';
 import '../../core/state/providers.dart';
 import '../../core/theme/app_colors.dart';
@@ -14,13 +15,12 @@ class PantryScreen extends ConsumerStatefulWidget {
 class _PantryScreenState extends ConsumerState<PantryScreen> {
   String searchQuery = '';
   String selectedZone = 'All';
-  int? activeUrgencyFilter; // null, 1 (today), 4 (soon)
+  int? activeUrgencyFilter;
 
   @override
   Widget build(BuildContext context) {
     final pantryItems = ref.watch(pantryProvider);
 
-    // Filter logic
     final filteredItems = pantryItems.where((item) {
       final matchesSearch = item.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
           item.category.toLowerCase().contains(searchQuery.toLowerCase());
@@ -30,7 +30,6 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
     }).toList()
       ..sort((a, b) => a.expiryDays.compareTo(b.expiryDays));
 
-    // Stats logic
     int countToday = 0;
     int countSoon = 0;
     int countSafe = 0;
@@ -52,271 +51,332 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.cream,
-      appBar: AppBar(
-        title: const Text('Pantry'),
-        actions: [
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(right: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.forest.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '$totalItems items',
-                style: const TextStyle(color: AppColors.forest, fontWeight: FontWeight.bold, fontSize: 12),
-              ),
-            ),
-          )
-        ],
-      ),
-      body: Column(
-        children: [
-          // Search and Filter
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.stone),
-                    ),
-                    child: TextField(
-                      onChanged: (val) => setState(() => searchQuery = val),
-                      decoration: const InputDecoration(
-                        hintText: 'Search ingredients...',
-                        prefixIcon: Icon(Icons.search, size: 20, color: AppColors.slate),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 10),
-                      ),
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  height: 40,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.stone),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: selectedZone,
-                      icon: const Icon(Icons.keyboard_arrow_down, size: 16),
-                      style: const TextStyle(fontSize: 14, color: AppColors.soil),
-                      onChanged: (String? newValue) {
-                        if (newValue != null) setState(() => selectedZone = newValue);
-                      },
-                      items: <String>['All', 'Fridge', 'Freezer', 'Dry Pantry']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Urgency Matrix
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.stone.withOpacity(0.5)),
-              ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Sticky Header
+            Container(
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 12),
+              color: AppColors.cream.withValues(alpha: 0.9),
               child: Column(
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.warning_amber_rounded, color: AppColors.today, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        '$countToday item${countToday != 1 ? 's' : ''} need rescue',
-                        style: const TextStyle(color: AppColors.today, fontWeight: FontWeight.bold, fontSize: 14),
+                      Row(
+                        children: [
+                          const Text(
+                            'My Pantry',
+                            style: TextStyle(
+                              fontFamily: 'DM Serif Display',
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.forest,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.mist,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '$totalItems items',
+                              style: const TextStyle(
+                                color: AppColors.forest,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          context.push('/insights');
+                        },
+                        icon: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            const Icon(Icons.bar_chart, color: AppColors.slate, size: 28),
+                            Positioned(
+                              top: -2,
+                              right: -4,
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFD38B7C), // match the salmon pink dot
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: AppColors.cream, width: 1.5),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildStatColumn('Today', countToday.toString(), AppColors.today),
-                      _buildStatColumn('This Week', countSoon.toString(), AppColors.soon),
-                      _buildStatColumn('Safe', countSafe.toString(), AppColors.safe),
-                    ],
+
+                  // Urgent Warnings Ribbon
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        activeUrgencyFilter = activeUrgencyFilter == 1 ? null : 1;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2), // red-50
+                        border: Border.all(color: const Color(0xFFFECACA), width: 1), // red-200
+                        borderRadius: BorderRadius.circular(24), // very rounded
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'USE TODAY',
+                            style: TextStyle(
+                              color: AppColors.today,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          Text(
+                            '$countToday item${countToday != 1 ? 's' : ''} needs rescue',
+                            style: const TextStyle(
+                              color: AppColors.today,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
+
+                  // Dynamic Urgent Matrix Bar
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(8),
                     child: SizedBox(
-                      height: 8,
+                      height: 6,
                       child: Row(
                         children: [
                           Expanded(flex: (todayPct * 100).toInt(), child: Container(color: AppColors.today)),
-                          Expanded(flex: (soonPct * 100).toInt(), child: Container(color: AppColors.soon)),
+                          Expanded(flex: (soonPct * 100).toInt(), child: Container(color: AppColors.clay)),
                           Expanded(flex: (safePct * 100).toInt(), child: Container(color: AppColors.safe)),
                         ],
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
+                  const SizedBox(height: 20),
 
-          // Urgency Ribbon Filter
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                _buildFilterChip('Use Today', 1, AppColors.today),
-                const SizedBox(width: 8),
-                _buildFilterChip('This Week', 4, AppColors.soon),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // List
-          Expanded(
-            child: filteredItems.isEmpty
-                ? const Center(child: Text('No matching food found.', style: TextStyle(color: AppColors.slate)))
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    itemCount: filteredItems.length,
-                    itemBuilder: (context, index) {
-                      final item = filteredItems[index];
-                      return _buildPantryCard(item);
-                    },
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatColumn(String label, String count, Color color) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(count, style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'DM Serif Display')),
-        Text(label, style: const TextStyle(color: AppColors.slate, fontSize: 10, fontWeight: FontWeight.w500)),
-      ],
-    );
-  }
-
-  Widget _buildFilterChip(String label, int daysFilter, Color activeColor) {
-    final isActive = activeUrgencyFilter == daysFilter;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          activeUrgencyFilter = isActive ? null : daysFilter;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isActive ? activeColor : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isActive ? activeColor : AppColors.stone),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? Colors.white : AppColors.slate,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPantryCard(PantryItem item) {
-    Color bg, text, border;
-    String label;
-    if (item.expiryDays <= 1) {
-      bg = AppColors.today.withOpacity(0.1);
-      text = AppColors.today;
-      border = AppColors.today;
-      label = 'Use today';
-    } else if (item.expiryDays <= 4) {
-      bg = AppColors.soon.withOpacity(0.1);
-      text = AppColors.soon;
-      border = AppColors.soon;
-      label = 'This week';
-    } else {
-      bg = AppColors.safe.withOpacity(0.1);
-      text = AppColors.safe;
-      border = AppColors.safe;
-      label = 'Safe';
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.stone.withOpacity(0.4)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.mist,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(Icons.eco, color: AppColors.forest), // simplified icon logic
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  const SizedBox(height: 2),
+                  // Search and Filter Pills
                   Row(
                     children: [
-                      Text(item.category, style: const TextStyle(fontSize: 11, color: AppColors.slate)),
-                      const SizedBox(width: 8),
-                      const Text('•', style: TextStyle(fontSize: 11, color: AppColors.stone)),
-                      const SizedBox(width: 8),
-                      Text(item.zone, style: const TextStyle(fontSize: 11, color: AppColors.slate)),
+                      Expanded(
+                        child: Container(
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: AppColors.stone.withValues(alpha: 0.3), // Light grey
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: TextField(
+                            onChanged: (val) => setState(() => searchQuery = val),
+                            decoration: const InputDecoration(
+                              hintText: 'Search ingredients...',
+                              hintStyle: TextStyle(color: AppColors.slate, fontSize: 14),
+                              prefixIcon: Icon(Icons.search, size: 18, color: AppColors.slate),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            style: const TextStyle(fontSize: 14, color: AppColors.soil),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        height: 44,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.stone.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: selectedZone,
+                            icon: const Icon(Icons.keyboard_arrow_down, size: 20, color: AppColors.soil),
+                            style: const TextStyle(fontSize: 14, color: AppColors.soil, fontWeight: FontWeight.bold),
+                            onChanged: (String? newValue) {
+                              if (newValue != null) setState(() => selectedZone = newValue);
+                            },
+                            items: <String>['All', 'Fridge', 'Freezer', 'Dry Pantry']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value == 'All' ? 'All Storage' : (value == 'Fridge' ? 'Ref' : value)),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
+
+            // Scrollable Pantry List
+            Expanded(
+              child: filteredItems.isEmpty
+                  ? const Center(child: Text('No matching food found.', style: TextStyle(color: AppColors.slate)))
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      itemCount: filteredItems.length,
+                      itemBuilder: (context, index) {
+                        final item = filteredItems[index];
+                        return _buildPantryCard(item, ref);
+                      },
+                    ),
+            ),
+
+            // Bottom Action Deck
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 12),
+              color: AppColors.cream.withValues(alpha: 0.9),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        context.go('/planner');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.forest,
+                        foregroundColor: AppColors.cream,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Generate prep plan',
+                            style: TextStyle(fontFamily: 'DM Serif Display', fontSize: 18, fontWeight: FontWeight.w600),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(Icons.auto_awesome, color: AppColors.turmeric, size: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildLegend(AppColors.safe, 'Safe'),
+                      _buildLegend(AppColors.clay, 'Soon'), // In prototype, "Soon" is orange/clay
+                      _buildLegend(AppColors.today, 'Today'),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegend(Color color, String text) {
+    return Row(
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(text, style: const TextStyle(fontSize: 13, color: AppColors.slate, fontWeight: FontWeight.w500)),
+      ],
+    );
+  }
+
+  Widget _buildPantryCard(PantryItem item, WidgetRef ref) {
+    Color dotColor;
+    if (item.expiryDays <= 1) {
+      dotColor = AppColors.today;
+    } else if (item.expiryDays <= 4) {
+      dotColor = AppColors.clay;
+    } else {
+      dotColor = AppColors.safe;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF6F2EB), // slightly darker cream for the card
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.stone.withValues(alpha: 0.3)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          children: [
+            Container(
+              width: 14,
+              height: 14,
               decoration: BoxDecoration(
-                color: bg,
-                border: Border.all(color: border.withOpacity(0.2)),
-                borderRadius: BorderRadius.circular(8),
+                color: dotColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.soil)),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${item.category} • 1 pack • ${item.zone}', // Hardcoded "1 pack" matching the prototype mockup style, ideally from model
+                    style: const TextStyle(fontSize: 12, color: AppColors.slate),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.stone.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                label,
-                style: TextStyle(color: text, fontSize: 10, fontWeight: FontWeight.bold),
+                '${item.expiryDays}d left',
+                style: const TextStyle(color: AppColors.slate, fontSize: 12, fontWeight: FontWeight.bold),
               ),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () {
+                ref.read(pantryProvider.notifier).consume(item.id);
+              },
+              child: const Icon(Icons.check, color: AppColors.safe, size: 22),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () {
+                ref.read(pantryProvider.notifier).discard(item.id);
+              },
+              child: const Icon(Icons.delete_outline, color: AppColors.today, size: 22),
             ),
           ],
         ),
